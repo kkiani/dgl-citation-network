@@ -20,6 +20,8 @@ graph_dir = '/opt/ml/input/data'
 glist, label_dict = load_graphs(os.path.join(graph_dir, 'dgl-citation-network.bin'))
 graph = glist[0]
 model = th.load(os.path.join(model_dir, 'dgl-citation-network.pt'))
+features = graph.ndata['feat']
+pred = model(graph, features)
 
 app = Flask(__name__)
 
@@ -33,7 +35,7 @@ def predict():
         data = flask.request.data.decode('utf-8') 
         s = StringIO(data)
         data = pd.read_csv(s, header=None) 
-        response = model(data)
+        response = pred[data]
         response = str(response)
     else:
         return flask.Response(response='CSV data only', status=415, mimetype='text/plain')
