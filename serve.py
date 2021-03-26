@@ -35,7 +35,7 @@ def predict():
         data = flask.request.data.decode('utf-8') 
         s = StringIO(data)
         data = pd.read_csv(s, header=None) 
-        response = pred[data]
+        response = pred[data.values]
         response = str(response)
     else:
         return flask.Response(response='CSV data only', status=415, mimetype='text/plain')
