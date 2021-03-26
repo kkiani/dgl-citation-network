@@ -17,9 +17,9 @@ from flask import Flask, Response
 model_dir = '/opt/ml/model'
 graph_dir = '/opt/ml/input/data'
 
-glist, label_dict = load_graphs(os.path.join(graph_dir, 'dgl-citation-network.bin'))
+glist, label_dict = load_graphs(os.path.join(model_dir, 'dgl-citation-network-graph.bin'))
 graph = glist[0]
-model = th.load(os.path.join(model_dir, 'dgl-citation-network.pt'))
+model = th.load(os.path.join(model_dir, 'dgl-citation-network-model.pt'))
 features = graph.ndata['feat']
 pred = model(graph, features)
 

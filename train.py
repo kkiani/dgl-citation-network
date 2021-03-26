@@ -6,7 +6,7 @@ import torch as th
 import torch.nn.functional as F 
 
 from dgl.data import CoraFullDataset
-from dgl.data.utils import split_dataset, save_graphs
+from dgl.data.utils import split_dataset, save_graphs, load_graphs
 
 from model import GraphConvolutionalNetwork
 
@@ -14,7 +14,6 @@ from model import GraphConvolutionalNetwork
 def main():
     # Setup Variables
     config_dir = '/opt/ml/input/config'
-    graph_dir = '/opt/ml/input/data'
     model_dir = '/opt/ml/model'
 
     with open(os.path.join(config_dir, 'hyperparameters.json'), 'r') as file:
@@ -52,10 +51,10 @@ def main():
 
     
     # Saving Graph
-    save_graphs(os.path.join(graph_dir, 'dgl-citation-network.bin'), graph)
+    save_graphs(os.path.join(model_dir, 'dgl-citation-network-graph.bin'), graph)
 
     # Saving Model
-    th.save(model.state_dict(), os.path.join(model_dir, 'dgl-citation-network.pt'))
+    th.save(model, os.path.join(model_dir, 'dgl-citation-network-model.pt'))
 
 if __name__ == '__main__':
     main()
