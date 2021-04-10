@@ -1,0 +1,85 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "ModelName": {
+      "Description": "Model Name",
+      "Type": "String"
+    },
+    "ContainerImage": {
+      "Description": "Container used to deploy the model",
+      "Type": "String"
+    },
+    "InstanceType": {
+      "Description": "Instance Type",
+      "Type": "String",
+      "Default": "ml.m5.large"
+    },
+    "InstanceCount": {
+      "Description": "Instance Count",
+      "Type": "String",
+      "Default": "1"
+    },
+    "RoleArn": {
+      "Description": "Execution Role ARN",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Model": {
+      "Type": "AWS::SageMaker::Model",
+      "Properties": {
+        "Containers": [
+          {
+            "Image": "!Ref ContainerImage"
+          }
+        ],
+        "ExecutionRoleArn": "!Ref RoleArn",
+        "ModelName": "!Ref ModelName",
+        "Tags": [
+          {
+            "Key": "owner",
+            "Value": "kiarash"
+          },
+          {
+            "Key": "project",
+            "Value": "dgl-citation-network"
+          }
+        ]
+      }
+    },
+    "EndpointConfig": {
+      "Type": "AWS::SageMaker::EndpointConfig",
+      "Properties": {
+        "ProductionVariants": [
+          {
+            "InitialInstanceCount": "!Ref InstanceCount",
+            "InitialVariantWeight": "1.0",
+            "InstanceType": "!Ref InstanceType",
+            "ModelName": "!GetAtt Model.ModelName",
+            "VariantName": "variant-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "owner",
+            "Value": "kiarash"
+          },
+          {
+            "Key": "project",
+            "Value": "dgl-citation-network"
+          }
+        ]
+      }
+    },
+    "Endpoint": {
+      "Type": "AWS::SageMaker::Endpoint",
+      "Properties": {
+        "EndpointConfigName": "!GetAtt EndpointConfig.EndpointConfigName"
+      }
+    }
+  },
+  "Outputs": {
+    "EndpointId": "!Ref Endpoint",
+    "EndpointName": "!GetAtt Endpoint.EndpointName"
+  }
+}
