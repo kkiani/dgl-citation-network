@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:latest
+FROM pytorch:1.8-custom
 
 RUN pip install --no-cache dgl pandas flask
 
