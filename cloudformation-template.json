@@ -16,7 +16,7 @@
     },
     "InstanceCount": {
       "Description": "Instance Count",
-      "Type": "String",
+      "Type": "Number",
       "Default": "1"
     },
     "RoleArn": {
@@ -30,11 +30,17 @@
       "Properties": {
         "Containers": [
           {
-            "Image": "!Ref ContainerImage"
+            "Image": {
+              "Ref": "ContainerImage"
+            }
           }
         ],
-        "ExecutionRoleArn": "!Ref RoleArn",
-        "ModelName": "!Ref ModelName",
+        "ExecutionRoleArn": {
+          "Ref": "RoleArn"
+        },
+        "ModelName": {
+          "Ref": "ModelName"
+        },
         "Tags": [
           {
             "Key": "owner",
@@ -52,10 +58,19 @@
       "Properties": {
         "ProductionVariants": [
           {
-            "InitialInstanceCount": "!Ref InstanceCount",
+            "InitialInstanceCount": {
+              "Ref": "InstanceCount"
+            },
             "InitialVariantWeight": "1.0",
-            "InstanceType": "!Ref InstanceType",
-            "ModelName": "!GetAtt Model.ModelName",
+            "InstanceType": {
+              "Ref": "InstanceType"
+            },
+            "ModelName": {
+              "Fn::GetAtt": [
+                "Model",
+                "ModelName"
+              ]
+            },
             "VariantName": "variant-1"
           }
         ],
@@ -74,12 +89,28 @@
     "Endpoint": {
       "Type": "AWS::SageMaker::Endpoint",
       "Properties": {
-        "EndpointConfigName": "!GetAtt EndpointConfig.EndpointConfigName"
+        "EndpointConfigName": {
+          "Fn::GetAtt": [
+            "EndpointConfig",
+            "EndpointConfigName"
+          ]
+        }
       }
     }
   },
   "Outputs": {
-    "EndpointId": "!Ref Endpoint",
-    "EndpointName": "!GetAtt Endpoint.EndpointName"
+    "EndpointId": {
+      "Value": {
+        "Ref": "Endpoint"
+      }
+    },
+    "EndpointName": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Endpoint",
+          "EndpointName"
+        ]
+      }
+    }
   }
 }
