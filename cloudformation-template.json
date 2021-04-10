@@ -5,6 +5,10 @@
       "Description": "Model Name",
       "Type": "String"
     },
+    "ModelDataUrl": {
+      "Description": "Root location of model artifacts",
+      "Type": "String"
+    },
     "ContainerImage": {
       "Description": "Container used to deploy the model",
       "Type": "String"
@@ -32,6 +36,9 @@
           {
             "Image": {
               "Ref": "ContainerImage"
+            },
+            "ModelDataUrl": {
+              "Ref": "ModelDataUrl"
             }
           }
         ],
