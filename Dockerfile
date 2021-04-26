@@ -1,6 +1,7 @@
-FROM pytorch:1.8-custom
+FROM python
 
-RUN pip install --no-cache dgl pandas flask
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache -r requirements.txt
 
 COPY model.py /usr/bin/model.py
 COPY train.py /usr/bin/train
