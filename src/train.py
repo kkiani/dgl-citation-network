@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, json
+import pickle
 
 import torch as th
 import torch.nn.functional as F 
@@ -12,7 +13,7 @@ from model import GraphConvolutionalNetwork
 
 
 def main():
-    # Setup Variables
+    # setup variables
     config_dir = '/opt/ml/input/config'
     model_dir = '/opt/ml/model'
 
@@ -22,26 +23,31 @@ def main():
         learning_rate = float(parameters_dict['learning-rate'])
         epochs = int(parameters_dict['epochs'])
 
-    # Getting dataset
-    dataset = CoraFullDataset()
-    graph = dataset[0]
+    # loading graph model
+    glist, label_dict = load_graphs(os.path.join(model_dir, 'dgl-citation-network-graph.bin'))
+    graph = glist[0]
     features = graph.ndata['feat']
     labels = graph.ndata['label']
+    number_of_labels = len(labels.unique())
 
-    # Spliting dataset
-    train_mask, val_mask = split_dataset(graph, [0.8, 0.2])
+    # loading train/test spilit indices
+    with open(os.path.join(model_dir, '/train_indices.bin'), 'rb') as train_file:
+        train_mask = pickle.load(train_file)
+    
+    with open(os.path.join(model_dir, '/validation_indices.bin'), 'rb') as validation_file:
+        val_mask = pickle.load(validation_file)
 
-    # Creating Model
-    model = GraphConvolutionalNetwork(features.shape[1], 16, dataset.num_classes)
+    # creating model
+    model = GraphConvolutionalNetwork(features.shape[1], 16, number_of_labels)
     optimizer = th.optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Training
+    # training
     for epoch in range(epochs):
         pred = model(graph, features)
-        loss = F.cross_entropy(pred[train_mask.indices], labels[train_mask.indices].to(th.long))
+        loss = F.cross_entropy(pred[train_mask], labels[train_mask].to(th.long))
 
-        train_acc = (labels[train_mask.indices] == pred[train_mask.indices].argmax(1)).float().mean()
-        val_acc = (labels[val_mask.indices] == pred[val_mask.indices].argmax(1)).float().mean()
+        train_acc = (labels[train_mask] == pred[train_mask].argmax(1)).float().mean()
+        val_acc = (labels[val_mask] == pred[val_mask].argmax(1)).float().mean()
 
         optimizer.zero_grad()
         loss.backward()
@@ -49,11 +55,8 @@ def main():
 
         print(f'Epoch {epoch}/{epochs} | Loss: {loss.item()}, train_accuracy: {train_acc}, val_accuracy: {val_acc}')
 
-    
-    # Saving Graph
-    save_graphs(os.path.join(model_dir, 'dgl-citation-network-graph.bin'), graph)
 
-    # Saving Model
+    # saving model
     th.save(model, os.path.join(model_dir, 'dgl-citation-network-model.pt'))
 
 if __name__ == '__main__':
