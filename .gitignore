@@ -4,3 +4,5 @@ venv
 notebooks/.ipynb_checkpoints/
 .ipynb_checkpoints/
 data.csv
+*.DS_Store
+model
